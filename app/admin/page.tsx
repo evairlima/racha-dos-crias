@@ -28,9 +28,7 @@ export default function RachaDosCriasSite() {
   const [photoCaption, setPhotoCaption] = useState('');
   const [bgImage, setBgImage] = useState('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop');
   const [tempBg, setTempBg] = useState('');
-  
-  // Estado para a Logo
-  const [logoUrl, setLogoUrl] = useState('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=200&auto=format&fit=crop'); // Valor padrão (pode trocar pelo link da sua logo)
+  const [logoUrl, setLogoUrl] = useState('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=200&auto=format&fit=crop');
   const [tempLogo, setTempLogo] = useState('');
 
   // Carregar dados salvos no navegador
@@ -105,10 +103,10 @@ export default function RachaDosCriasSite() {
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
       {/* Cabeçalho Moderno com Logo */}
       <header 
-        className="relative bg-cover bg-center border-b border-slate-800 shadow-2xl"
+        className="relative bg-cover bg-center border-b border-slate-800 shadow-2xl z-20"
         style={{ backgroundImage: `linear-gradient(to bottom, rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)), url('${bgImage}')` }}
       >
-        <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
+        <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-6 relative z-30">
           <div className="flex items-center gap-4 text-center md:text-left">
             <img 
               src={logoUrl} 
@@ -123,17 +121,42 @@ export default function RachaDosCriasSite() {
             </div>
           </div>
           
-          <nav className="flex flex-wrap justify-center gap-2 bg-slate-800/80 p-2 rounded-2xl backdrop-blur-md border border-slate-700">
-            <button onClick={() => setTab('home')} className={`px-4 py-2 rounded-xl text-sm font-bold transition ${tab === 'home' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`}>Início</button>
-            <button onClick={() => setTab('tabelas')} className={`px-4 py-2 rounded-xl text-sm font-bold transition ${tab === 'tabelas' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`}>Tabela</button>
-            <button onClick={() => setTab('elenco')} className={`px-4 py-2 rounded-xl text-sm font-bold transition ${tab === 'elenco' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`}>Galeria & Elenco</button>
-            <button onClick={() => setTab('admin')} className={`px-4 py-2 rounded-xl text-sm font-bold transition ${tab === 'admin' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'}`}>Painel Admin ⚙️</button>
+          {/* Navegação atualizada com ponteiro e z-index garantido */}
+          <nav className="flex flex-wrap justify-center gap-2 bg-slate-800/90 p-2 rounded-2xl backdrop-blur-md border border-slate-700 relative z-40">
+            <button 
+              type="button"
+              onClick={() => setTab('home')} 
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer ${tab === 'home' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`}
+            >
+              Início
+            </button>
+            <button 
+              type="button"
+              onClick={() => setTab('tabelas')} 
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer ${tab === 'tabelas' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`}
+            >
+              Tabela
+            </button>
+            <button 
+              type="button"
+              onClick={() => setTab('elenco')} 
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer ${tab === 'elenco' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-300 hover:bg-slate-700'}`}
+            >
+              Galeria & Elenco
+            </button>
+            <button 
+              type="button"
+              onClick={() => setTab('admin')} 
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer ${tab === 'admin' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'}`}
+            >
+              Painel Admin ⚙️
+            </button>
           </nav>
         </div>
       </header>
 
       {/* Conteúdo Principal */}
-      <main className="max-w-6xl mx-auto px-6 py-10">
+      <main className="max-w-6xl mx-auto px-6 py-10 relative z-10">
         
         {/* ABA INÍCIO */}
         {tab === 'home' && (
@@ -170,7 +193,7 @@ export default function RachaDosCriasSite() {
                     </div>
                   )}
                 </div>
-                <button onClick={() => setTab('tabelas')} className="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition">
+                <button type="button" onClick={() => setTab('tabelas')} className="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition cursor-pointer">
                   Ver Tabela Completa
                 </button>
               </div>
@@ -180,7 +203,7 @@ export default function RachaDosCriasSite() {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-black uppercase text-white">📸 Momentos do Racha</h3>
-                <button onClick={() => setTab('elenco')} className="text-xs text-emerald-400 font-bold hover:underline">Ver todas →</button>
+                <button type="button" onClick={() => setTab('elenco')} className="text-xs text-emerald-400 font-bold hover:underline cursor-pointer">Ver todas →</button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {photos.slice(0, 3).map((p) => (
@@ -276,7 +299,7 @@ export default function RachaDosCriasSite() {
                     required
                   />
                 </div>
-                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg">
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg cursor-pointer">
                   Adicionar Equipe
                 </button>
               </form>
@@ -297,7 +320,7 @@ export default function RachaDosCriasSite() {
                     required
                   />
                 </div>
-                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg">
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg cursor-pointer">
                   Salvar Nova Logo
                 </button>
               </form>
@@ -328,7 +351,7 @@ export default function RachaDosCriasSite() {
                     className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                   />
                 </div>
-                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg">
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg cursor-pointer">
                   Publicar Foto
                 </button>
               </form>
@@ -349,7 +372,7 @@ export default function RachaDosCriasSite() {
                     required
                   />
                 </div>
-                <button type="submit" className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg">
+                <button type="submit" className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg cursor-pointer">
                   Salvar Fundo
                 </button>
               </form>
@@ -362,13 +385,13 @@ export default function RachaDosCriasSite() {
                 {teams.map((t) => (
                   <div key={t.id} className="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800">
                     <span className="font-bold text-slate-200 text-sm">{t.name}</span>
-                    <button onClick={() => handleDeleteTeam(t.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition">Excluir Equipe</button>
+                    <button type="button" onClick={() => handleDeleteTeam(t.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition cursor-pointer">Excluir Equipe</button>
                   </div>
                 ))}
                 {photos.map((p) => (
                   <div key={p.id} className="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800">
                     <span className="font-medium text-slate-300 text-xs truncate max-w-[200px]">{p.caption}</span>
-                    <button onClick={() => handleDeletePhoto(p.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition">Excluir Foto</button>
+                    <button type="button" onClick={() => handleDeletePhoto(p.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition cursor-pointer">Excluir Foto</button>
                   </div>
                 ))}
               </div>
