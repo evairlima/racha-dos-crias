@@ -25,8 +25,8 @@ export default function RachaDosCriasSite() {
   ]);
   
   const [teamName, setTeamName] = useState('');
-  const [photoUrl, setPhotoUrl] = useState('');
   const [photoCaption, setPhotoCaption] = useState('');
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   // Carregar dados salvos no navegador (localStorage)
   useEffect(() => {
@@ -60,14 +60,33 @@ export default function RachaDosCriasSite() {
     saveTeams(teams.filter(t => t.id !== id));
   };
 
+  // Converter imagem local em Base64 para guardar no navegador
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedFile(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddPhoto = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!photoUrl.trim()) return;
-    const newPhoto: Photo = { id: Date.now().toString(), url: photoUrl, caption: photoCaption || 'Racha dos Crias' };
+    if (!selectedFile) {
+      alert('Por favor, seleciona uma foto do teu dispositivo.');
+      return;
+    }
+    const newPhoto: Photo = { 
+      id: Date.now().toString(), 
+      url: selectedFile, 
+      caption: photoCaption || 'Racha dos Crias' 
+    };
     savePhotos([newPhoto, ...photos]);
-    setPhotoUrl('');
+    setSelectedFile(null);
     setPhotoCaption('');
-    alert('Foto adicionada à galeria!');
+    alert('Foto enviada e publicada com sucesso!');
   };
 
   const handleDeletePhoto = (id: string) => {
@@ -130,7 +149,7 @@ export default function RachaDosCriasSite() {
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Destaque</span>
               <h2 className="text-3xl font-black text-white mt-4 mb-3">Bem-vindo ao Portal Oficial do Racha!</h2>
               <p className="text-slate-300 text-sm leading-relaxed">
-                Aqui acompanhas a classificação das equipas, os craques da resenha e os melhores momentos fotografados de cada partida. Usa o Painel Admin para gerir tudo facilmente.
+                Acompanha a classificação das equipas e envia fotos diretamente do teu telemóvel ou computador através do Painel Admin.
               </p>
             </div>
 
@@ -200,7 +219,7 @@ export default function RachaDosCriasSite() {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-black uppercase text-white">Galeria de Fotos</h2>
               <button type="button" onClick={() => setTab('admin')} className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl cursor-pointer">
-                + Adicionar Nova Foto
+                + Enviar Foto do Dispositivo
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -243,28 +262,35 @@ export default function RachaDosCriasSite() {
               </form>
             </div>
 
-            {/* Adicionar Foto */}
+            {/* Enviar Foto Local */}
             <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-3xl shadow-xl">
-              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Adicionar Foto à Galeria</h3>
+              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Enviar Foto do Dispositivo</h3>
               <form onSubmit={handleAddPhoto} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">URL Direta da Imagem</label>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Selecionar Imagem</label>
                   <input
-                    type="url"
-                    value={photoUrl}
-                    onChange={(e) => setPhotoUrl(e.target.value)}
-                    placeholder="https://exemplo.com/foto.jpg"
-                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer"
                     required
                   />
                 </div>
+
+                {/* Pré-visualização da foto selecionada */}
+                {selectedFile && (
+                  <div className="h-32 rounded-xl overflow-hidden border border-slate-700 bg-slate-900">
+                    <img src={selectedFile} alt="Pré-visualização" className="w-full h-full object-cover" />
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Legenda da Foto</label>
                   <input
                     type="text"
                     value={photoCaption}
                     onChange={(e) => setPhotoCaption(e.target.value)}
-                    placeholder="Ex: Galera reunida após o jogo"
+                    placeholder="Ex: Resenha de domingo"
                     className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
