@@ -16,6 +16,13 @@ interface Photo {
   caption: string;
 }
 
+interface NewsItem {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+}
+
 export default function RachaDosCriasSite() {
   const [tab, setTab] = useState<'home' | 'tabelas' | 'elenco' | 'admin'>('home');
   const [teams, setTeams] = useState<Team[]>([]);
@@ -23,10 +30,15 @@ export default function RachaDosCriasSite() {
     { id: '1', url: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=800&auto=format&fit=crop', caption: 'Dia de racha e muita resenha!' },
     { id: '2', url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=800&auto=format&fit=crop', caption: 'Momento decisivo da partida.' }
   ]);
+  const [news, setNews] = useState<NewsItem[]>([
+    { id: '1', title: 'Moura brilha, marca no final e garante vitória suada', content: 'Numa partida marcada pelo equilíbrio e forte marcação, o talento individual fez a diferença nos acréscimos. A equipe assume a liderança provisória.', date: 'Há 2 horas' }
+  ]);
   
   const [teamName, setTeamName] = useState('');
   const [photoCaption, setPhotoCaption] = useState('');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [newsTitle, setNewsTitle] = useState('');
+  const [newsContent, setNewsContent] = useState('');
 
   // Carregar dados salvos no navegador (localStorage)
   useEffect(() => {
@@ -35,6 +47,9 @@ export default function RachaDosCriasSite() {
 
     const savedPhotos = localStorage.getItem('racha_photos');
     if (savedPhotos) setPhotos(JSON.parse(savedPhotos));
+
+    const savedNews = localStorage.getItem('racha_news');
+    if (savedNews) setNews(JSON.parse(savedNews));
   }, []);
 
   const saveTeams = (newTeams: Team[]) => {
@@ -45,6 +60,11 @@ export default function RachaDosCriasSite() {
   const savePhotos = (newPhotos: Photo[]) => {
     setPhotos(newPhotos);
     localStorage.setItem('racha_photos', JSON.stringify(newPhotos));
+  };
+
+  const saveNews = (newNews: NewsItem[]) => {
+    setNews(newNews);
+    localStorage.setItem('racha_news', JSON.stringify(newNews));
   };
 
   const handleAddTeam = (e: React.FormEvent) => {
@@ -91,6 +111,25 @@ export default function RachaDosCriasSite() {
 
   const handleDeletePhoto = (id: string) => {
     savePhotos(photos.filter(p => p.id !== id));
+  };
+
+  const handleAddNews = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsTitle.trim() || !newsContent.trim()) return;
+    const newItem: NewsItem = {
+      id: Date.now().toString(),
+      title: newsTitle,
+      content: newsContent,
+      date: 'Agora mesmo'
+    };
+    saveNews([newItem, ...news]);
+    setNewsTitle('');
+    setNewsContent('');
+    alert('Notícia publicada com sucesso!');
+  };
+
+  const handleDeleteNews = (id: string) => {
+    saveNews(news.filter(n => n.id !== id));
   };
 
   return (
@@ -142,21 +181,57 @@ export default function RachaDosCriasSite() {
       {/* Conteúdo Principal */}
       <main className="max-w-6xl mx-auto px-6 py-10">
         
-        {/* ABA INÍCIO */}
+        {/* ABA INÍCIO (Com Notícias e Destaques) */}
         {tab === 'home' && (
           <div className="space-y-8">
-            <div className="bg-slate-800/60 border border-slate-700 p-8 rounded-3xl shadow-xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Destaque</span>
-              <h2 className="text-3xl font-black text-white mt-4 mb-3">Bem-vindo ao Portal Oficial do Racha!</h2>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Acompanha a classificação das equipas e envia fotos diretamente do teu telemóvel ou computador através do Painel Admin.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Notícia Principal em Destaque */}
+              <div className="md:col-span-2 bg-slate-800/60 border border-slate-700 p-8 rounded-3xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Última Resenha</span>
+                  {news.length > 0 ? (
+                    <>
+                      <h2 className="text-3xl font-black text-white mt-4 mb-3">{news[0].title}</h2>
+                      <p className="text-slate-300 text-sm leading-relaxed mb-6">{news[0].content}</p>
+                    </>
+                  ) : (
+                    <p className="text-slate-400 text-sm mt-4">Nenhuma notícia publicada ainda.</p>
+                  )}
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-400 border-t border-slate-700/60 pt-4">
+                  <span>Por Administração Oficial</span>
+                  <span className="text-emerald-400 font-bold">{news[0]?.date || ''}</span>
+                </div>
+              </div>
+
+              {/* Card Rápido de Classificação */}
+              <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-3xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-wider text-white mb-4">Top Equipes</h3>
+                  {teams.length === 0 ? (
+                    <p className="text-sm text-slate-400 italic">Nenhuma equipa cadastrada.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {teams.slice(0, 3).map((t, index) => (
+                        <div key={t.id} className="flex justify-between items-center bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                          <span className="font-bold text-sm text-slate-200">#{index + 1} {t.name}</span>
+                          <span className="text-emerald-400 font-black text-sm">{t.points} pts</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button type="button" onClick={() => setTab('tabelas')} className="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition cursor-pointer">
+                  Ver Tabela Completa
+                </button>
+              </div>
             </div>
 
             {/* Prévia da Galeria na Home */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-black uppercase text-white">📸 Últimas Fotos</h3>
+                <h3 className="text-lg font-black uppercase text-white">📸 Momentos do Racha</h3>
                 <button type="button" onClick={() => setTab('elenco')} className="text-xs text-emerald-400 font-bold hover:underline cursor-pointer">Ver galeria completa →</button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -262,8 +337,40 @@ export default function RachaDosCriasSite() {
               </form>
             </div>
 
-            {/* Enviar Foto Local */}
+            {/* Publicar Notícia */}
             <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-3xl shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Publicar Notícia / Resenha</h3>
+              <form onSubmit={handleAddNews} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Título da Notícia</label>
+                  <input
+                    type="text"
+                    value={newsTitle}
+                    onChange={(e) => setNewsTitle(e.target.value)}
+                    placeholder="Ex: Vitória emocionante nos acréscimos"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Conteúdo / Resumo</label>
+                  <textarea
+                    value={newsContent}
+                    onChange={(e) => setNewsContent(e.target.value)}
+                    placeholder="Escreve os detalhes da partida ou resenha..."
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                </div>
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer uppercase tracking-wider shadow-lg">
+                  Publicar Notícia
+                </button>
+              </form>
+            </div>
+
+            {/* Enviar Foto Local */}
+            <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-3xl shadow-xl md:col-span-2">
               <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Enviar Foto do Dispositivo</h3>
               <form onSubmit={handleAddPhoto} className="space-y-4">
                 <div>
@@ -272,12 +379,11 @@ export default function RachaDosCriasSite() {
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer"
+                    className="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer"
                     required
                   />
                 </div>
 
-                {/* Pré-visualização da foto selecionada */}
                 {selectedFile && (
                   <div className="h-32 rounded-xl overflow-hidden border border-slate-700 bg-slate-900">
                     <img src={selectedFile} alt="Pré-visualização" className="w-full h-full object-cover" />
@@ -308,6 +414,12 @@ export default function RachaDosCriasSite() {
                   <div key={t.id} className="flex justify-between items-center p-3 bg-slate-900/80 rounded-xl border border-slate-800">
                     <span className="font-bold text-slate-200 text-sm">{t.name}</span>
                     <button type="button" onClick={() => handleDeleteTeam(t.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-xl hover:bg-red-500/20 cursor-pointer">Excluir</button>
+                  </div>
+                ))}
+                {news.map((n) => (
+                  <div key={n.id} className="flex justify-between items-center p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                    <span className="font-medium text-slate-300 text-xs truncate max-w-[200px]">{n.title}</span>
+                    <button type="button" onClick={() => handleDeleteNews(n.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-xl hover:bg-red-500/20 cursor-pointer">Excluir Notícia</button>
                   </div>
                 ))}
                 {photos.map((p) => (
