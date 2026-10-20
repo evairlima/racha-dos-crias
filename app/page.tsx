@@ -1,109 +1,301 @@
-import React from 'react';
+'use client';
 
-export default function HomePage() {
+import React, { useState, useEffect } from 'react';
+
+interface Team {
+  id: string;
+  name: string;
+  points: number;
+  goalsFor: number;
+  goalsAgainst: number;
+}
+
+interface Photo {
+  id: string;
+  url: string;
+  caption: string;
+}
+
+export default function RachaDosCriasSite() {
+  const [tab, setTab] = useState<'home' | 'tabelas' | 'elenco' | 'admin'>('home');
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([
+    { id: '1', url: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=800&auto=format&fit=crop', caption: 'Dia de racha e muita resenha!' },
+    { id: '2', url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=800&auto=format&fit=crop', caption: 'Momento decisivo da partida.' }
+  ]);
+  
+  const [teamName, setTeamName] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [photoCaption, setPhotoCaption] = useState('');
+
+  // Carregar dados salvos no navegador (localStorage)
+  useEffect(() => {
+    const savedTeams = localStorage.getItem('racha_teams');
+    if (savedTeams) setTeams(JSON.parse(savedTeams));
+
+    const savedPhotos = localStorage.getItem('racha_photos');
+    if (savedPhotos) setPhotos(JSON.parse(savedPhotos));
+  }, []);
+
+  const saveTeams = (newTeams: Team[]) => {
+    setTeams(newTeams);
+    localStorage.setItem('racha_teams', JSON.stringify(newTeams));
+  };
+
+  const savePhotos = (newPhotos: Photo[]) => {
+    setPhotos(newPhotos);
+    localStorage.setItem('racha_photos', JSON.stringify(newPhotos));
+  };
+
+  const handleAddTeam = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!teamName.trim()) return;
+    const newTeam: Team = { id: Date.now().toString(), name: teamName, points: 0, goalsFor: 0, goalsAgainst: 0 };
+    saveTeams([...teams, newTeam]);
+    setTeamName('');
+    alert('Equipa adicionada com sucesso!');
+  };
+
+  const handleDeleteTeam = (id: string) => {
+    saveTeams(teams.filter(t => t.id !== id));
+  };
+
+  const handleAddPhoto = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!photoUrl.trim()) return;
+    const newPhoto: Photo = { id: Date.now().toString(), url: photoUrl, caption: photoCaption || 'Racha dos Crias' };
+    savePhotos([newPhoto, ...photos]);
+    setPhotoUrl('');
+    setPhotoCaption('');
+    alert('Foto adicionada à galeria!');
+  };
+
+  const handleDeletePhoto = (id: string) => {
+    savePhotos(photos.filter(p => p.id !== id));
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <header className="bg-emerald-800 text-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex flex-col text-center md:text-left">
-            <h1 className="text-3xl font-black uppercase tracking-wider">Racha dos Crias</h1>
-            <span className="text-xs text-emerald-300 font-medium italic tracking-wide">
-              "Nem melhor, nem pior, apenas diferente."
-            </span>
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
+      {/* Cabeçalho */}
+      <header className="bg-slate-950 border-b border-slate-800 shadow-xl">
+        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-wider text-white">
+              ⚽ Racha dos Crias
+            </h1>
+            <p className="text-emerald-400 text-xs italic mt-0.5">"Nem melhor, nem pior, apenas diferente."</p>
           </div>
-          <nav className="flex gap-6 font-semibold text-sm">
-            <a href="#" className="hover:text-emerald-300 transition border-b-2 border-transparent hover:border-emerald-300 pb-1">Início</a>
-            <a href="#" className="hover:text-emerald-300 transition border-b-2 border-transparent hover:border-emerald-300 pb-1">A Resenha</a>
-            <a href="#" className="hover:text-emerald-300 transition border-b-2 border-transparent hover:border-emerald-300 pb-1">Tabelas</a>
-            <a href="#" className="hover:text-emerald-300 transition border-b-2 border-transparent hover:border-emerald-300 pb-1">Elenco</a>
-          </nav>
-          <button className="bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2 rounded-lg font-bold text-sm shadow transition">
-            Painel Admin
-          </button>
+          
+          {/* Menu de Navegação */}
+          <div className="flex flex-wrap gap-2">
+            <button 
+              type="button"
+              onClick={() => setTab('home')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition ${tab === 'home' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+            >
+              Início
+            </button>
+            <button 
+              type="button"
+              onClick={() => setTab('tabelas')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition ${tab === 'tabelas' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+            >
+              Tabela
+            </button>
+            <button 
+              type="button"
+              onClick={() => setTab('elenco')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition ${tab === 'elenco' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+            >
+              Galeria 📸
+            </button>
+            <button 
+              type="button"
+              onClick={() => setTab('admin')}
+              className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition ${tab === 'admin' ? 'bg-amber-500 text-slate-950 shadow-lg' : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'}`}
+            >
+              Painel Admin ⚙️
+            </button>
+          </div>
         </div>
       </header>
 
-      <section className="bg-slate-900 text-white py-20 px-4 text-center relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black opacity-80 z-0"></div>
+      {/* Conteúdo Principal */}
+      <main className="max-w-6xl mx-auto px-6 py-10">
         
-        <div className="max-w-4xl mx-auto relative z-10">
-          <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">Portal Oficial</span>
-          <h2 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-            Onde o Futebol <br className="hidden md:block" /> Encontra a Resenha.
-          </h2>
-          <p className="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
-            Acompanhe as últimas do futebol amador e profissional, as resenhas pós-jogo e as estatísticas exclusivas do maior racha da cidade.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg shadow-emerald-900/50">
-              Classificação Atual
-            </button>
-            <button className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl font-bold transition border border-slate-700 shadow-lg">
-              Últimas Notícias
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <main className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 xl:grid-cols-3 gap-8">
-        <div className="xl:col-span-2 space-y-6">
-          <div className="flex items-center justify-between border-b-2 border-slate-200 pb-2 mb-6">
-            <h3 className="text-2xl font-black text-slate-800 uppercase flex items-center gap-2">
-              <span className="w-3 h-8 bg-emerald-600 rounded-sm"></span>
-              A Resenha
-            </h3>
-            <a href="#" className="text-sm font-bold text-emerald-600 hover:text-emerald-700">Ver todas &rarr;</a>
-          </div>
-          
-          <article className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row hover:shadow-md transition cursor-pointer group">
-            <div className="bg-slate-200 md:w-2/5 h-56 md:h-auto relative overflow-hidden">
-              <div className="absolute inset-0 bg-slate-800/10 group-hover:bg-transparent transition z-10"></div>
-              <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium text-sm bg-slate-300">
-                [Imagem da Partida]
-              </div>
-            </div>
-            <div className="p-6 md:w-3/5 flex flex-col justify-center">
-              <span className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-2">Futebol Amador</span>
-              <h4 className="text-2xl font-bold mb-3 text-slate-900 group-hover:text-emerald-700 transition">
-                Moura brilha, marca no final e garante vitória suada
-              </h4>
-              <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-                Em uma partida marcada pelo equilíbrio e forte marcação, o talento individual fez a diferença nos acréscimos. A equipe assume a liderança provisória.
+        {/* ABA INÍCIO */}
+        {tab === 'home' && (
+          <div className="space-y-8">
+            <div className="bg-slate-800/60 border border-slate-700 p-8 rounded-3xl shadow-xl">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Destaque</span>
+              <h2 className="text-3xl font-black text-white mt-4 mb-3">Bem-vindo ao Portal Oficial do Racha!</h2>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Aqui acompanhas a classificação das equipas, os craques da resenha e os melhores momentos fotografados de cada partida. Usa o Painel Admin para gerir tudo facilmente.
               </p>
-              <div className="flex items-center justify-between mt-auto">
-                <span className="text-xs font-semibold text-slate-400">Por Evair Velez</span>
-                <span className="text-xs font-medium text-slate-400">Há 2 horas</span>
-              </div>
             </div>
-          </article>
-        </div>
 
-        <aside className="space-y-8">
-          <div className="bg-slate-900 text-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-slate-950 p-3 text-center">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Último Confronto</h3>
-            </div>
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div className="text-center w-1/3 flex flex-col items-center">
-                  <div className="w-14 h-14 bg-slate-700 rounded-full mb-3 border-2 border-emerald-500 shadow-lg shadow-emerald-500/20"></div>
-                  <span className="font-bold text-sm">Time A</span>
-                </div>
-                <div className="text-center w-1/3 flex flex-col items-center">
-                  <span className="text-4xl font-black mb-1">2 <span className="text-slate-500 mx-1">-</span> 1</span>
-                  <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">Encerrado</span>
-                </div>
-                <div className="text-center w-1/3 flex flex-col items-center">
-                  <div className="w-14 h-14 bg-slate-700 rounded-full mb-3 border-2 border-slate-600"></div>
-                  <span className="font-bold text-sm">Time B</span>
-                </div>
+            {/* Prévia da Galeria na Home */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-black uppercase text-white">📸 Últimas Fotos</h3>
+                <button type="button" onClick={() => setTab('elenco')} className="text-xs text-emerald-400 font-bold hover:underline cursor-pointer">Ver galeria completa →</button>
               </div>
-              <div className="text-xs text-center text-slate-400 border-t border-slate-800 pt-4">
-                <span className="text-emerald-400 font-semibold">Gols:</span> Moura (12'), Lucas (89') <span className="mx-2">|</span> Carlos (45')
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {photos.slice(0, 3).map((p) => (
+                  <div key={p.id} className="bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 shadow-lg">
+                    <div className="h-48 bg-slate-900 overflow-hidden">
+                      <img src={p.url} alt={p.caption} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm font-medium text-slate-200">{p.caption}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </aside>
+        )}
+
+        {/* ABA TABELA */}
+        {tab === 'tabelas' && (
+          <div className="bg-slate-800/60 border border-slate-700 rounded-3xl overflow-hidden shadow-xl">
+            <div className="p-6 border-b border-slate-700 bg-slate-800">
+              <h2 className="text-xl font-black uppercase text-white">Classificação Geral</h2>
+            </div>
+            {teams.length === 0 ? (
+              <p className="p-12 text-center text-slate-400 text-sm">Nenhuma equipa cadastrada. Vai ao Painel Admin para adicionar.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-slate-900/50 text-xs uppercase text-slate-400 border-b border-slate-700">
+                      <th className="p-4">Equipa</th>
+                      <th className="p-4 text-center">Pontos</th>
+                      <th className="p-4 text-center">GP</th>
+                      <th className="p-4 text-center">GC</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700 text-sm">
+                    {teams.map((t, index) => (
+                      <tr key={t.id} className="hover:bg-slate-700/30">
+                        <td className="p-4 font-bold text-white flex items-center gap-3">
+                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${index === 0 ? 'bg-amber-500 text-slate-950' : 'bg-slate-700 text-slate-300'}`}>#{index + 1}</span> 
+                          {t.name}
+                        </td>
+                        <td className="p-4 text-center font-black text-emerald-400">{t.points}</td>
+                        <td className="p-4 text-center text-slate-300">{t.goalsFor}</td>
+                        <td className="p-4 text-center text-slate-300">{t.goalsAgainst}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ABA GALERIA */}
+        {tab === 'elenco' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-black uppercase text-white">Galeria de Fotos</h2>
+              <button type="button" onClick={() => setTab('admin')} className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl cursor-pointer">
+                + Adicionar Nova Foto
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {photos.map((p) => (
+                <div key={p.id} className="bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 shadow-xl">
+                  <div className="h-56 bg-slate-900 overflow-hidden">
+                    <img src={p.url} alt={p.caption} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm font-medium text-slate-200">{p.caption}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* PAINEL ADMIN */}
+        {tab === 'admin' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* Cadastrar Equipa */}
+            <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-3xl shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Cadastrar Equipa</h3>
+              <form onSubmit={handleAddTeam} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Nome da Equipa</label>
+                  <input
+                    type="text"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    placeholder="Ex: Argentina FC"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                </div>
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer uppercase tracking-wider shadow-lg">
+                  Adicionar Equipa
+                </button>
+              </form>
+            </div>
+
+            {/* Adicionar Foto */}
+            <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-3xl shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Adicionar Foto à Galeria</h3>
+              <form onSubmit={handleAddPhoto} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">URL Direta da Imagem</label>
+                  <input
+                    type="url"
+                    value={photoUrl}
+                    onChange={(e) => setPhotoUrl(e.target.value)}
+                    placeholder="https://exemplo.com/foto.jpg"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Legenda da Foto</label>
+                  <input
+                    type="text"
+                    value={photoCaption}
+                    onChange={(e) => setPhotoCaption(e.target.value)}
+                    placeholder="Ex: Galera reunida após o jogo"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer uppercase tracking-wider shadow-lg">
+                  Publicar Foto
+                </button>
+              </form>
+            </div>
+
+            {/* Gerenciamento / Exclusão */}
+            <div className="bg-slate-800/60 border border-slate-700 p-6 rounded-3xl shadow-xl md:col-span-2">
+              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Gerir Itens Existentes</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2">
+                {teams.map((t) => (
+                  <div key={t.id} className="flex justify-between items-center p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                    <span className="font-bold text-slate-200 text-sm">{t.name}</span>
+                    <button type="button" onClick={() => handleDeleteTeam(t.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-xl hover:bg-red-500/20 cursor-pointer">Excluir</button>
+                  </div>
+                ))}
+                {photos.map((p) => (
+                  <div key={p.id} className="flex justify-between items-center p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                    <span className="font-medium text-slate-300 text-xs truncate max-w-[200px]">{p.caption}</span>
+                    <button type="button" onClick={() => handleDeletePhoto(p.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-xl hover:bg-red-500/20 cursor-pointer">Excluir Foto</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </main>
     </div>
   );
