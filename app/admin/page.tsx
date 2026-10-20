@@ -28,6 +28,10 @@ export default function RachaDosCriasSite() {
   const [photoCaption, setPhotoCaption] = useState('');
   const [bgImage, setBgImage] = useState('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop');
   const [tempBg, setTempBg] = useState('');
+  
+  // Estado para a Logo
+  const [logoUrl, setLogoUrl] = useState('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=200&auto=format&fit=crop'); // Valor padrão (pode trocar pelo link da sua logo)
+  const [tempLogo, setTempLogo] = useState('');
 
   // Carregar dados salvos no navegador
   useEffect(() => {
@@ -39,6 +43,9 @@ export default function RachaDosCriasSite() {
 
     const savedBg = localStorage.getItem('racha_bg');
     if (savedBg) setBgImage(savedBg);
+
+    const savedLogo = localStorage.getItem('racha_logo');
+    if (savedLogo) setLogoUrl(savedLogo);
   }, []);
 
   const saveTeams = (newTeams: Team[]) => {
@@ -85,19 +92,35 @@ export default function RachaDosCriasSite() {
     alert('Fundo atualizado com sucesso!');
   };
 
+  const handleSaveLogo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tempLogo.trim()) return;
+    setLogoUrl(tempLogo);
+    localStorage.setItem('racha_logo', tempLogo);
+    setTempLogo('');
+    alert('Logo atualizada com sucesso!');
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
-      {/* Cabeçalho Moderno */}
+      {/* Cabeçalho Moderno com Logo */}
       <header 
         className="relative bg-cover bg-center border-b border-slate-800 shadow-2xl"
         style={{ backgroundImage: `linear-gradient(to bottom, rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)), url('${bgImage}')` }}
       >
         <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
-          <div className="text-center md:text-left">
-            <h1 className="text-4xl font-black uppercase tracking-wider text-white flex items-center gap-3 justify-center md:justify-start">
-              ⚽ Racha dos Crias
-            </h1>
-            <p className="text-emerald-400 text-sm font-medium mt-1 italic">"Nem melhor, nem pior, apenas diferente."</p>
+          <div className="flex items-center gap-4 text-center md:text-left">
+            <img 
+              src={logoUrl} 
+              alt="Logo Racha dos Crias" 
+              className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500 shadow-lg bg-slate-800"
+            />
+            <div>
+              <h1 className="text-3xl font-black uppercase tracking-wider text-white">
+                Racha dos Crias
+              </h1>
+              <p className="text-emerald-400 text-xs font-medium mt-1 italic">"Nem melhor, nem pior, apenas diferente."</p>
+            </div>
           </div>
           
           <nav className="flex flex-wrap justify-center gap-2 bg-slate-800/80 p-2 rounded-2xl backdrop-blur-md border border-slate-700">
@@ -153,7 +176,7 @@ export default function RachaDosCriasSite() {
               </div>
             </div>
 
-            {/* Prévia da Galeria na Home */}
+            {/* Galeria na Home */}
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-black uppercase text-white">📸 Momentos do Racha</h3>
@@ -213,7 +236,7 @@ export default function RachaDosCriasSite() {
           </div>
         )}
 
-        {/* ABA GALERIA & ELENCO */}
+        {/* ABA GALERIA */}
         {tab === 'elenco' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -255,6 +278,27 @@ export default function RachaDosCriasSite() {
                 </div>
                 <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg">
                   Adicionar Equipe
+                </button>
+              </form>
+            </div>
+
+            {/* Alterar Logo */}
+            <div className="bg-slate-800/50 p-6 rounded-3xl border border-slate-700 shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Alterar Logo do Site</h3>
+              <form onSubmit={handleSaveLogo} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-400 mb-1">URL Direta da Logo</label>
+                  <input
+                    type="url"
+                    value={tempLogo}
+                    onChange={(e) => setTempLogo(e.target.value)}
+                    placeholder="https://exemplo.com/logo.png"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    required
+                  />
+                </div>
+                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg">
+                  Salvar Nova Logo
                 </button>
               </form>
             </div>
@@ -311,24 +355,22 @@ export default function RachaDosCriasSite() {
               </form>
             </div>
 
-            {/* Gerenciar Equipas e Fotos */}
-            <div className="bg-slate-800/50 p-6 rounded-3xl border border-slate-700 shadow-xl flex flex-col justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Gerenciamento Rápido</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                  {teams.map((t) => (
-                    <div key={t.id} className="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800">
-                      <span className="font-bold text-slate-200 text-sm">{t.name}</span>
-                      <button onClick={() => handleDeleteTeam(t.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition">Excluir Equipe</button>
-                    </div>
-                  ))}
-                  {photos.map((p) => (
-                    <div key={p.id} className="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800">
-                      <span className="font-medium text-slate-300 text-xs truncate max-w-[200px]">{p.caption}</span>
-                      <button onClick={() => handleDeletePhoto(p.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition">Excluir Foto</button>
-                    </div>
-                  ))}
-                </div>
+            {/* Gerenciamento Rápido */}
+            <div className="bg-slate-800/50 p-6 rounded-3xl border border-slate-700 shadow-xl md:col-span-2">
+              <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">Gerenciamento Rápido</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2">
+                {teams.map((t) => (
+                  <div key={t.id} className="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                    <span className="font-bold text-slate-200 text-sm">{t.name}</span>
+                    <button onClick={() => handleDeleteTeam(t.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition">Excluir Equipe</button>
+                  </div>
+                ))}
+                {photos.map((p) => (
+                  <div key={p.id} className="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                    <span className="font-medium text-slate-300 text-xs truncate max-w-[200px]">{p.caption}</span>
+                    <button onClick={() => handleDeletePhoto(p.id)} className="text-xs bg-red-500/10 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition">Excluir Foto</button>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
